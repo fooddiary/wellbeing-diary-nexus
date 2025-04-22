@@ -16,6 +16,8 @@ import AnalyticsPage from "./pages/AnalyticsPage";
 import NotesPage from "./pages/NotesPage";
 import AboutPage from "./pages/AboutPage";
 import { Layout } from "./components/Layout";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { initLogger } from "./lib/errorLogger";
 
 const queryClient = new QueryClient();
 
@@ -23,33 +25,42 @@ const App = () => {
   // Инициализация хранилища при запуске приложения
   useEffect(() => {
     const initApp = async () => {
+      // Инициализируем логгер ошибок
+      await initLogger();
+      // Инициализируем хранилище
       await initializeAppState();
     };
     initApp();
   }, []);
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route element={<Layout />}>
-              <Route path="/" element={<Index />} />
-              <Route path="/diary" element={<DiaryPage />} />
-              <Route path="/add/:type" element={<AddPage />} />
-              <Route path="/share" element={<SharePage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/analytics" element={<AnalyticsPage />} />
-              <Route path="/notes" element={<NotesPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route element={
+                <ErrorBoundary>
+                  <Layout />
+                </ErrorBoundary>
+              }>
+                <Route path="/" element={<Index />} />
+                <Route path="/diary" element={<DiaryPage />} />
+                <Route path="/add/:type" element={<AddPage />} />
+                <Route path="/share" element={<SharePage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="/notes" element={<NotesPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 };
 

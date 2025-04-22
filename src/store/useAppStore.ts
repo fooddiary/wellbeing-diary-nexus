@@ -21,6 +21,9 @@ import {
 } from "@/lib/sqliteClient";
 import { setupDatabase } from "@/lib/initDb";
 import { initPhotoDirectory } from "@/lib/photoFileSystem";
+import { validateMeal, validateWater, validateWeight, validateSettings } from "@/lib/validation";
+import { logError, logInfo } from "@/lib/errorLogger";
+import { toast } from "@/components/ui/sonner";
 
 // Начальное состояние
 let appState: AppData = {
@@ -56,6 +59,8 @@ function notifyState() {
 export async function initializeAppState() {
   if (!initialized) {
     try {
+      logInfo("Инициализация состояния приложения");
+      
       // Инициализация базы данных
       await setupDatabase();
       await initPhotoDirectory();
@@ -82,11 +87,32 @@ export async function initializeAppState() {
         await saveSettings(appState.settings);
       }
       
+      // Дублируем настройки в localStorage для случая сбоя SQLite
+      try {
+        localStorage.setItem('appSettings', JSON.stringify(appState.settings));
+      } catch (e) {
+        console.warn('Не удалось сохранить настройки в localStorage', e);
+      }
+      
       initialized = true;
       notifyState();
-      console.log('App state initialized successfully');
+      logInfo('Состояние приложения инициализировано успешно');
     } catch (error) {
-      console.error('Failed to initialize app state:', error);
+      logError('Ошибка при инициализации состояния приложения', error);
+      
+      // Попытка восстановления из localStorage
+      try {
+        const storedSettings = localStorage.getItem('appSettings');
+        if (storedSettings) {
+          appState.settings = JSON.parse(storedSettings);
+          logInfo('Настройки восстановлены из localStorage');
+        }
+      } catch (e) {
+        logError('Не удалось восстановить настройки из localStorage', e);
+      }
+      
+      // Показываем уведомление пользователю
+      toast.error("Произошла ошибка при инициализации приложения");
     }
   }
   return appState;
@@ -103,6 +129,13 @@ export const appActions = {
   // MEAL ACTIONS
   addMeal: async (meal: Omit<MealEntry, "id">) => {
     try {
+      // Валидируем данные перед сохранением
+      const validation = validateMeal(meal);
+      if (!validation.valid) {
+        toast.error(`Ошибка: ${validation.errors?.join(", ")}`);
+        return null;
+      }
+      
       // Добавляем в базу
       const id = await addMealEntry({...meal, id: 0});
       
@@ -115,13 +148,21 @@ export const appActions = {
       notifyState();
       return newMeal;
     } catch (e) {
-      console.error('Error adding meal:', e);
+      logError('Ошибка при добавлении приёма пищи', e);
+      toast.error("Не удалось сохранить приём пищи");
       throw e;
     }
   },
   
   updateMeal: async (meal: MealEntry) => {
     try {
+      // Валидируем данные перед обновлением
+      const validation = validateMeal(meal);
+      if (!validation.valid) {
+        toast.error(`Ошибка: ${validation.errors?.join(", ")}`);
+        return;
+      }
+      
       // Обновляем в базе
       await updateMealEntry(meal);
       
@@ -132,7 +173,8 @@ export const appActions = {
       };
       notifyState();
     } catch (e) {
-      console.error('Error updating meal:', e);
+      logError('Ошибка при обновлении приёма пищи', e);
+      toast.error("Не удалось обновить приём пищи");
       throw e;
     }
   },
@@ -149,7 +191,8 @@ export const appActions = {
       };
       notifyState();
     } catch (e) {
-      console.error('Error deleting meal:', e);
+      logError('Ошибка при удалении приёма пищи', e);
+      toast.error("Не удалось удалить приём пищи");
       throw e;
     }
   },
@@ -157,6 +200,13 @@ export const appActions = {
   // WATER ACTIONS
   addWater: async (water: Omit<WaterEntry, "id">) => {
     try {
+      // Валидируем данные перед сохранением
+      const validation = validateWater(water);
+      if (!validation.valid) {
+        toast.error(`Ошибка: ${validation.errors?.join(", ")}`);
+        return null;
+      }
+      
       // Добавляем в базу
       const id = await addWaterEntry({...water, id: 0});
       
@@ -169,13 +219,21 @@ export const appActions = {
       notifyState();
       return newWater;
     } catch (e) {
-      console.error('Error adding water:', e);
+      logError('Ошибка при добавлении записи о воде', e);
+      toast.error("Не удалось сохранить запись о воде");
       throw e;
     }
   },
   
   updateWater: async (water: WaterEntry) => {
     try {
+      // Валидируем данные перед обновлением
+      const validation = validateWater(water);
+      if (!validation.valid) {
+        toast.error(`Ошибка: ${validation.errors?.join(", ")}`);
+        return;
+      }
+      
       // Обновляем в базе
       await updateWaterEntry(water);
       
@@ -186,7 +244,8 @@ export const appActions = {
       };
       notifyState();
     } catch (e) {
-      console.error('Error updating water:', e);
+      logError('Ошибка при обновлении записи о воде', e);
+      toast.error("Не удалось обновить запись о воде");
       throw e;
     }
   },
@@ -203,7 +262,8 @@ export const appActions = {
       };
       notifyState();
     } catch (e) {
-      console.error('Error deleting water:', e);
+      logError('Ошибка при удалении записи о воде', e);
+      toast.error("Не удалось удалить запись о воде");
       throw e;
     }
   },
@@ -211,6 +271,13 @@ export const appActions = {
   // WEIGHT ACTIONS
   addWeight: async (weight: Omit<WeightMetric, "id">) => {
     try {
+      // Валидируем данные перед сохранением
+      const validation = validateWeight(weight);
+      if (!validation.valid) {
+        toast.error(`Ошибка: ${validation.errors?.join(", ")}`);
+        return null;
+      }
+      
       // Добавляем в базу
       const id = await addWeightEntry({...weight, id: 0});
       
@@ -223,13 +290,21 @@ export const appActions = {
       notifyState();
       return newWeight;
     } catch (e) {
-      console.error('Error adding weight:', e);
+      logError('Ошибка при добавлении веса', e);
+      toast.error("Не удалось сохранить вес");
       throw e;
     }
   },
   
   updateWeight: async (weight: WeightMetric) => {
     try {
+      // Валидируем данные перед обновлением
+      const validation = validateWeight(weight);
+      if (!validation.valid) {
+        toast.error(`Ошибка: ${validation.errors?.join(", ")}`);
+        return;
+      }
+      
       // Обновляем в базе
       await updateWeightEntry(weight);
       
@@ -240,7 +315,8 @@ export const appActions = {
       };
       notifyState();
     } catch (e) {
-      console.error('Error updating weight:', e);
+      logError('Ошибка при обновлении веса', e);
+      toast.error("Не удалось обновить вес");
       throw e;
     }
   },
@@ -257,7 +333,8 @@ export const appActions = {
       };
       notifyState();
     } catch (e) {
-      console.error('Error deleting weight:', e);
+      logError('Ошибка при удалении веса', e);
+      toast.error("Не удалось удалить вес");
       throw e;
     }
   },
@@ -265,11 +342,25 @@ export const appActions = {
   // SETTINGS ACTIONS
   updateSettings: async (settings: Partial<Settings>) => {
     try {
-      // Обновляем настройки
+      // Объединяем с текущими настройками
       const newSettings = { ...appState.settings, ...settings };
+      
+      // Валидируем новые настройки
+      const validation = validateSettings(newSettings);
+      if (!validation.valid) {
+        toast.error(`Ошибка: ${validation.errors?.join(", ")}`);
+        return;
+      }
       
       // Сохраняем в базу
       await saveSettings(newSettings);
+      
+      // Дублируем в localStorage для отказоустойчивости
+      try {
+        localStorage.setItem('appSettings', JSON.stringify(newSettings));
+      } catch (e) {
+        console.warn('Не удалось сохранить настройки в localStorage', e);
+      }
       
       // Обновляем состояние
       appState = {
@@ -278,7 +369,8 @@ export const appActions = {
       };
       notifyState();
     } catch (e) {
-      console.error('Error updating settings:', e);
+      logError('Ошибка при обновлении настроек', e);
+      toast.error("Не удалось обновить настройки");
       throw e;
     }
   }
@@ -289,6 +381,10 @@ export const updateSettings = appActions.updateSettings;
 
 // Экспортируем установку состояния для обратной совместимости
 export function setAppState(newState: Partial<AppData>) {
-  appState = { ...appState, ...newState };
-  notifyState();
+  try {
+    appState = { ...appState, ...newState };
+    notifyState();
+  } catch (e) {
+    logError('Ошибка при обновлении состояния приложения', e);
+  }
 }
