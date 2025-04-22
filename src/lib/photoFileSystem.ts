@@ -10,7 +10,7 @@ export async function savePhotoToDevice(file: Blob, fileName: string): Promise<s
     path,
     data: base64,
     directory: Directory.Data,
-    encoding: Encoding.BASE64  // Use Encoding enum instead of string literal
+    encoding: Encoding.UTF8  // Changed from BASE64 to UTF8
   });
   return path;
 }
@@ -20,7 +20,7 @@ export async function readPhotoFromDevice(path: string): Promise<string> {
   const file = await Filesystem.readFile({
     path,
     directory: Directory.Data,
-    encoding: Encoding.BASE64  // Use Encoding enum instead of string literal
+    encoding: Encoding.UTF8  // Changed from BASE64 to UTF8
   });
   return file.data as string;  // Cast to string to fix the type issue
 }
