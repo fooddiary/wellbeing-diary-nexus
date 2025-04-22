@@ -1,15 +1,38 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAppStore } from "@/store/useAppStore";
+import { format } from "date-fns";
 
 export const WeightWidget = () => {
+  const [state, appActions] = useAppStore();
   const [weight, setWeight] = useState("");
   const [savedWeight, setSavedWeight] = useState("");
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
-  const handleSaveWeight = () => {
+  // Получаем последнюю запись о весе
+  useEffect(() => {
+    if (state.weights.length > 0) {
+      const sortedWeights = [...state.weights].sort((a, b) => 
+        b.date.localeCompare(a.date)
+      );
+      setSavedWeight(sortedWeights[0].weight.toString());
+      setLastUpdated(new Date(sortedWeights[0].date));
+    }
+  }, [state.weights]);
+
+  const handleSaveWeight = async () => {
     if (weight) {
-      setSavedWeight(weight);
-      setLastUpdated(new Date());
+      const weightValue = parseFloat(weight);
+      if (isNaN(weightValue)) return;
+      
+      const today = format(new Date(), 'yyyy-MM-dd');
+      
+      await appActions.addWeight({
+        date: today,
+        weight: weightValue
+      });
+      
+      setWeight("");
     }
   };
 
@@ -21,7 +44,7 @@ export const WeightWidget = () => {
         <div className="mb-3 text-center">
           <div className="text-2xl font-bold text-primary">{savedWeight} кг</div>
           <div className="text-xs text-gray-500">
-            {lastUpdated ? `Обновлено: ${lastUpdated.toLocaleDateString()}` : ""}
+            {lastUpdated ? `Обновлено: ${format(lastUpdated, 'dd.MM.yyyy')}` : ""}
           </div>
         </div>
       )}

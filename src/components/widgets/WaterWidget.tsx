@@ -1,13 +1,29 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAppStore } from "@/store/useAppStore";
+import { format } from "date-fns";
 
 export const WaterWidget = () => {
+  const [state, appActions] = useAppStore();
   const [waterIntake, setWaterIntake] = useState(0);
   const [target, setTarget] = useState(2000); // Default target: 2000ml
   const [showInfo, setShowInfo] = useState(false);
 
-  const handleAddWater = () => {
-    setWaterIntake(waterIntake + 250); // Add 250ml with each click
+  // Рассчитываем потребление воды для текущего дня
+  useEffect(() => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const todayEntries = state.water.filter(entry => entry.date === today);
+    const todayIntake = todayEntries.reduce((total, entry) => total + entry.amount, 0);
+    setWaterIntake(todayIntake);
+  }, [state.water]);
+
+  const handleAddWater = async () => {
+    const now = new Date();
+    await appActions.addWater({
+      date: format(now, 'yyyy-MM-dd'),
+      time: format(now, 'HH:mm'),
+      amount: 250 // Добавляем 250мл воды
+    });
   };
 
   const percentage = Math.min((waterIntake / target) * 100, 100);

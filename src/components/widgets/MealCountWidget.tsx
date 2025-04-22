@@ -1,9 +1,30 @@
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAppStore } from "@/store/useAppStore";
+import { format } from "date-fns";
 
 export const MealCountWidget = () => {
-  // Dummy data - in a real app this would come from actual entries
-  const [mealCount, setMealCount] = useState(2);
+  const [state] = useAppStore();
+  const [mealCount, setMealCount] = useState(0);
+  const [lastMealTime, setLastMealTime] = useState<string | null>(null);
+
+  // Получаем приемы пищи за сегодня
+  useEffect(() => {
+    const today = format(new Date(), 'yyyy-MM-dd');
+    const todayMeals = state.meals.filter(meal => meal.date === today);
+    
+    setMealCount(todayMeals.length);
+    
+    // Находим последний прием пищи
+    if (todayMeals.length > 0) {
+      const sortedMeals = [...todayMeals].sort((a, b) => 
+        b.time.localeCompare(a.time)
+      );
+      setLastMealTime(sortedMeals[0].time);
+    } else {
+      setLastMealTime(null);
+    }
+  }, [state.meals]);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
@@ -17,7 +38,7 @@ export const MealCountWidget = () => {
       <div className="mt-3 text-center text-sm text-gray-500">
         {mealCount === 0 
           ? "Нет записей за сегодня" 
-          : `Последний приём: ${new Date().getHours()}:${String(new Date().getMinutes()).padStart(2, '0')}`}
+          : `Последний приём: ${lastMealTime}`}
       </div>
     </div>
   );

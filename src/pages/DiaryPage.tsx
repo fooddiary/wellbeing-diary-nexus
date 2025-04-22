@@ -1,58 +1,80 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useAppStore } from "@/store/useAppStore";
+import { format, parseISO, addDays } from "date-fns";
+import { ru } from "date-fns/locale";
+import { getPhotoUrl } from "@/lib/photoFileSystem";
+import type { MealEntry } from "@/types/AppData";
 
-// Example diary entries - in a real app, this would come from a database or local storage
-const dummyEntries = [
-  {
-    id: 1,
-    type: "meal",
-    mealType: "Завтрак",
-    time: "08:30",
-    description: "Овсянка с фруктами и йогурт",
-    hasImage: true,
-    date: new Date().toISOString(),
-  },
-  {
-    id: 2,
-    type: "water",
-    amount: 300,
-    time: "10:15",
-    date: new Date().toISOString(),
-  },
-  {
-    id: 3,
-    type: "meal",
-    mealType: "Обед",
-    time: "13:00",
-    description: "Салат с курицей и цельнозерновой хлеб",
-    hasImage: false,
-    date: new Date().toISOString(),
-  },
-];
+interface EnrichedMealEntry extends MealEntry {
+  photoUrl?: string;
+}
 
 const DiaryPage = () => {
-  const [entries, setEntries] = useState(dummyEntries);
+  const [state] = useAppStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [dateEntries, setDateEntries] = useState<Array<
+    | ({ type: "meal" } & EnrichedMealEntry)
+    | ({ type: "water"; amount: number; time: string; date: string; id: number })
+  >>([]);
 
-  // Format the date for display
-  const formattedDate = new Intl.DateTimeFormat("ru", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-  }).format(selectedDate);
+  // Загружаем записи для выбранной даты
+  useEffect(() => {
+    const fetchEntries = async () => {
+      const dateString = format(selectedDate, 'yyyy-MM-dd');
+      
+      // Фильтруем записи за выбранную дату
+      const mealsForDate = state.meals.filter(meal => meal.date === dateString);
+      const waterForDate = state.water.filter(water => water.date === dateString);
+      
+      // Загружаем URL фотографий для приёмов пищи
+      const enrichedMeals = await Promise.all(
+        mealsForDate.map(async (meal) => {
+          let photoUrl = undefined;
+          if (meal.photoPath) {
+            try {
+              photoUrl = await getPhotoUrl(meal.photoPath);
+            } catch (e) {
+              console.error('Failed to load photo for meal:', meal.id);
+            }
+          }
+          return { 
+            ...meal, 
+            type: 'meal' as const, 
+            photoUrl 
+          };
+        })
+      );
+      
+      // Преобразуем записи о воде
+      const enrichedWater = waterForDate.map(water => ({
+        ...water,
+        type: 'water' as const
+      }));
+      
+      // Объединяем и сортируем по времени
+      const allEntries = [...enrichedMeals, ...enrichedWater]
+        .sort((a, b) => {
+          return b.time.localeCompare(a.time); // Сортировка от более поздних к ранним
+        });
+      
+      setDateEntries(allEntries);
+    };
+    
+    fetchEntries();
+  }, [state.meals, state.water, selectedDate]);
 
-  // Navigate to previous day
+  // Форматируем дату для отображения
+  const formattedDate = format(selectedDate, "EEEE, d MMMM", { locale: ru });
+
+  // Переход на предыдущий день
   const goToPreviousDay = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(selectedDate.getDate() - 1);
-    setSelectedDate(newDate);
+    setSelectedDate(current => addDays(current, -1));
   };
 
-  // Navigate to next day
+  // Переход на следующий день
   const goToNextDay = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(selectedDate.getDate() + 1);
-    setSelectedDate(newDate);
+    setSelectedDate(current => addDays(current, 1));
   };
 
   return (
@@ -99,7 +121,7 @@ const DiaryPage = () => {
         </button>
       </div>
 
-      {entries.length === 0 ? (
+      {dateEntries.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-4xl mb-4">📝</div>
           <h3 className="text-lg font-medium mb-2">Нет записей</h3>
@@ -109,9 +131,9 @@ const DiaryPage = () => {
         </div>
       ) : (
         <div className="space-y-4">
-          {entries.map((entry) => (
+          {dateEntries.map((entry) => (
             <div 
-              key={entry.id} 
+              key={`${entry.type}-${entry.id}`} 
               className="bg-white dark:bg-gray-800 rounded-lg shadow p-4"
             >
               {entry.type === "meal" ? (
@@ -121,7 +143,15 @@ const DiaryPage = () => {
                     <div className="text-sm text-gray-500">{entry.time}</div>
                   </div>
                   
-                  {entry.hasImage && (
+                  {entry.photoUrl ? (
+                    <div className="h-32 bg-gray-200 rounded mb-2 flex items-center justify-center overflow-hidden">
+                      <img 
+                        src={entry.photoUrl} 
+                        alt={`Фото: ${entry.description}`} 
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                  ) : entry.photoPath && (
                     <div className="h-32 bg-gray-200 rounded mb-2 flex items-center justify-center">
                       <span className="text-gray-500">Фото блюда</span>
                     </div>
