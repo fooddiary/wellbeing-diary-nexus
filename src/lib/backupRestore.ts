@@ -1,8 +1,8 @@
 
 import { Capacitor } from "@capacitor/core";
-import { Directory, Filesystem } from "@capacitor/filesystem";
+import { Directory, Filesystem, Encoding } from "@capacitor/filesystem";
 import { initDatabase, getAllMeals, getAllWater, getAllWeights, getSettings, saveSettings } from "@/lib/sqliteClient";
-import { AppData } from "@/types/AppData";
+import { AppData, Settings } from "@/types/AppData";
 import { toast } from "@/components/ui/sonner";
 import { logInfo, logError } from "./errorLogger";
 
@@ -19,7 +19,14 @@ export async function createBackup(): Promise<string | null> {
     const meals = await getAllMeals();
     const water = await getAllWater();
     const weights = await getAllWeights();
-    const settings = await getSettings() || {};
+    const settings = await getSettings() || {
+      theme: "system" as const,
+      waterWidget: true,
+      mealCountWidget: true,
+      weightWidget: true,
+      height: 170,
+      weight: 70
+    };
     
     const backupData: AppData = {
       meals,
@@ -46,7 +53,7 @@ export async function createBackup(): Promise<string | null> {
         path: `${BACKUP_FOLDER}/${backupFileName}`,
         data: JSON.stringify(backupData),
         directory: Directory.Documents,
-        encoding: 'utf8'
+        encoding: Encoding.UTF8
       });
       
       logInfo("Создана резервная копия", { filename: backupFileName });
@@ -132,10 +139,10 @@ export async function restoreFromBackup(backupName: string): Promise<boolean> {
       const { data } = await Filesystem.readFile({
         path: `${BACKUP_FOLDER}/${backupName}`,
         directory: Directory.Documents,
-        encoding: 'utf8'
+        encoding: Encoding.UTF8
       });
       
-      backupData = JSON.parse(data);
+      backupData = JSON.parse(data as string);
     } else {
       // В веб-версии берем из localStorage
       const data = localStorage.getItem(backupName);

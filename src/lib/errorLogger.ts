@@ -1,6 +1,6 @@
 
 import { Capacitor } from "@capacitor/core";
-import { Directory, Filesystem } from "@capacitor/filesystem";
+import { Directory, Filesystem, Encoding } from "@capacitor/filesystem";
 
 export interface LogEntry {
   timestamp: string;
@@ -24,10 +24,10 @@ export async function initLogger(): Promise<void> {
       const { data } = await Filesystem.readFile({
         path: LOG_FILE,
         directory: Directory.Data,
-        encoding: 'utf8',
+        encoding: Encoding.UTF8,
       }).catch(() => ({ data: '[]' }));
       
-      inMemoryLogs = JSON.parse(data);
+      inMemoryLogs = JSON.parse(data as string);
     } else {
       // В веб-версии используем localStorage
       const savedLogs = localStorage.getItem('error_logs');
@@ -62,7 +62,7 @@ async function writeToLog(entry: LogEntry): Promise<void> {
         path: LOG_FILE,
         data: JSON.stringify(inMemoryLogs),
         directory: Directory.Data,
-        encoding: 'utf8',
+        encoding: Encoding.UTF8,
         recursive: true
       });
     } else {
@@ -132,7 +132,7 @@ export async function clearLogs(): Promise<void> {
         path: LOG_FILE,
         data: '[]',
         directory: Directory.Data,
-        encoding: 'utf8'
+        encoding: Encoding.UTF8
       });
     } else {
       localStorage.setItem('error_logs', '[]');
@@ -158,7 +158,7 @@ export async function exportLogs(): Promise<string | null> {
       path: fileName,
       data: logContent,
       directory: Directory.Documents,
-      encoding: 'utf8'
+      encoding: Encoding.UTF8
     });
     
     return `Logs exported to Documents/${fileName}`;
