@@ -1,5 +1,5 @@
 
-import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 // Сохраняет фото на устройство и возвращает путь
 export async function savePhotoToDevice(file: Blob, fileName: string): Promise<string> {
@@ -10,7 +10,7 @@ export async function savePhotoToDevice(file: Blob, fileName: string): Promise<s
     path,
     data: base64,
     directory: Directory.Data,
-    encoding: Encoding.BASE64
+    encoding: 'base64'  // Use string literal instead of enum
   });
   return path;
 }
@@ -20,7 +20,7 @@ export async function readPhotoFromDevice(path: string): Promise<string> {
   const file = await Filesystem.readFile({
     path,
     directory: Directory.Data,
-    encoding: Encoding.BASE64
+    encoding: 'base64'  // Use string literal instead of enum
   });
-  return file.data;
+  return file.data as string;  // Cast to string to fix the type issue
 }
