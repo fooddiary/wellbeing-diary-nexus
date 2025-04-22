@@ -7,7 +7,8 @@ const sqlite = new SQLiteConnection(CapacitorSQLite);
 
 export async function initDatabase() {
   if (!db) {
-    db = await sqlite.createConnection("wellbeing_db", false, "no-encryption", 1);
+    // Fix: Adding the missing 5th argument (version number) to createConnection
+    db = await sqlite.createConnection("wellbeing_db", false, "no-encryption", 1, false);
     await db.open();
   }
   // Schema, see below for detailed SQL
