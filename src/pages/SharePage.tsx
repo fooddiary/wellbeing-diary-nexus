@@ -3,13 +3,13 @@ import { useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
+import { format as formatDate } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SharePage = () => {
   const [exportType, setExportType] = useState("day");
-  const [format, setFormat] = useState("clipboard");
+  const [exportFormat, setExportFormat] = useState("clipboard");
   const [isSharing, setIsSharing] = useState(false);
   const [date, setDate] = useState<Date>(new Date());
   const [startDate, setStartDate] = useState<Date>(new Date());
@@ -98,7 +98,7 @@ const SharePage = () => {
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
-                    {date ? format(date, "PPP") : <span>Выберите дату</span>}
+                    {date ? formatDate(date, "PPP") : <span>Выберите дату</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 pointer-events-auto">
@@ -132,7 +132,7 @@ const SharePage = () => {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {startDate ? format(startDate, "PPP") : <span>Выберите дату</span>}
+                      {startDate ? formatDate(startDate, "PPP") : <span>Выберите дату</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 pointer-events-auto">
@@ -159,7 +159,7 @@ const SharePage = () => {
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {endDate ? format(endDate, "PPP") : <span>Выберите дату</span>}
+                      {endDate ? formatDate(endDate, "PPP") : <span>Выберите дату</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0 pointer-events-auto">
@@ -186,8 +186,8 @@ const SharePage = () => {
                 type="radio"
                 name="format"
                 value="clipboard"
-                checked={format === "clipboard"}
-                onChange={() => setFormat("clipboard")}
+                checked={exportFormat === "clipboard"}
+                onChange={() => setExportFormat("clipboard")}
                 className="mr-2"
               />
               <span>Скопировать в буфер обмена</span>
@@ -198,8 +198,8 @@ const SharePage = () => {
                 type="radio"
                 name="format"
                 value="share"
-                checked={format === "share"}
-                onChange={() => setFormat("share")}
+                checked={exportFormat === "share"}
+                onChange={() => setExportFormat("share")}
                 className="mr-2"
               />
               <span>Поделиться (email, мессенджеры)</span>
@@ -210,8 +210,8 @@ const SharePage = () => {
                 type="radio"
                 name="format"
                 value="excel"
-                checked={format === "excel"}
-                onChange={() => setFormat("excel")}
+                checked={exportFormat === "excel"}
+                onChange={() => setExportFormat("excel")}
                 className="mr-2"
               />
               <span>Excel (.xlsx)</span>

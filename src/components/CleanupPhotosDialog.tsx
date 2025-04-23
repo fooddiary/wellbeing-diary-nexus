@@ -7,7 +7,7 @@ import { cleanupOldPhotos } from "@/utils/photoUtils";
 import { toast } from "@/components/ui/sonner";
 import { useAppStore } from "@/store/useAppStore";
 
-interface CleanupPhotosDialogProps {
+export interface CleanupPhotosDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }

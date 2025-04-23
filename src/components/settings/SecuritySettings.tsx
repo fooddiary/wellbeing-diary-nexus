@@ -46,8 +46,8 @@ export const SecuritySettings = () => {
       </div>
 
       <CleanupPhotosDialog 
-        isOpen={showCleanupDialog} 
-        onClose={() => setShowCleanupDialog(false)} 
+        open={showCleanupDialog} 
+        onOpenChange={(open) => setShowCleanupDialog(open)} 
       />
     </Card>
   );
