@@ -1,18 +1,13 @@
-
 import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import { BottomNav } from "./BottomNav";
 import { Sidebar } from "./Sidebar";
-
 export const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <main className="flex-1 pb-16">
@@ -25,7 +20,7 @@ export const Layout = () => {
                 <line x1="4" x2="20" y1="18" y2="18" />
               </svg>
             </button>
-            <h1 className="text-xl font-bold ml-4">Дневник благополучия</h1>
+            <h1 className="text-xl font-bold ml-4 text-center mx-0 px-[74px]">Дневник </h1>
           </div>
         </div>
         
@@ -35,6 +30,5 @@ export const Layout = () => {
       </main>
       
       <BottomNav />
-    </div>
-  );
+    </div>;
 };
