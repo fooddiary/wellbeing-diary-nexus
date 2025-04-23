@@ -27,29 +27,7 @@ const AboutPage = () => {
         </CardHeader>
         <CardContent>
           {/* Блок "Дневник питания" с описанием */}
-          <div className="bg-muted rounded-lg px-4 py-4 mb-6">
-            <h2 className="text-lg font-semibold mb-2 text-center">Ведение дневника питания — это мощный инструмент для улучшения здоровья и осознанного отношения к еде</h2>
-            <ul className="list-disc pl-6 mb-2 text-sm">
-              <li>Контроль веса и похудение</li>
-              <li>Анализ связи «еда — самочувствие»</li>
-              <li>Формирование осознанности</li>
-              <li>Медицинские показания (диабет, аллергии и др.)</li>
-              <li>Спортивные цели</li>
-              <li>Контроль детского рациона</li>
-            </ul>
-            <div className="text-sm my-2">
-              Если вы хотите узнать больше о теле, здоровье и психологии,<br />
-              переходите в Telegram-канал <a href="https://t.me/ktelu_nezhno" className="text-primary underline" target="_blank" rel="noopener noreferrer">@ktelu_nezhno</a>
-            </div>
-            <div className="text-xs text-gray-500 mt-2 mb-2">
-              Контакт для предложений: <a href="mailto:mobil2008@inbox.ru" className="underline text-primary">mobil2008@inbox.ru</a>
-            </div>
-            {/* Открытие модалок, только ссылки */}
-            <div className="flex gap-2">
-              
-              
-            </div>
-          </div>
+          
 
           <div className="space-y-4">
             <div className="flex justify-center mb-4">
