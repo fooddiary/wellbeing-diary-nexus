@@ -4,19 +4,39 @@ import { useAppStore } from "@/store/useAppStore";
 import { format, parseISO, addDays } from "date-fns";
 import { ru } from "date-fns/locale";
 import { getPhotoUrl } from "@/lib/photoFileSystem";
-import type { MealEntry } from "@/types/AppData";
+import type { MealEntry, WaterEntry } from "@/types/AppData";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { AddMealForm } from "@/components/forms/AddMealForm";
+import { AddWaterForm } from "@/components/forms/AddWaterForm";
+import { CleanupPhotosDialog } from "@/components/CleanupPhotosDialog";
+import { Search, Calendar as CalendarIcon, MoreVertical } from "lucide-react";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 
 interface EnrichedMealEntry extends MealEntry {
   photoUrl?: string;
 }
 
+type DiaryEntry = 
+  | ({ type: "meal" } & EnrichedMealEntry)
+  | ({ type: "water" } & WaterEntry);
+
 const DiaryPage = () => {
   const [state] = useAppStore();
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [dateEntries, setDateEntries] = useState<Array<
-    | ({ type: "meal" } & EnrichedMealEntry)
-    | ({ type: "water"; amount: number; time: string; date: string; id: number })
-  >>([]);
+  const [dateEntries, setDateEntries] = useState<DiaryEntry[]>([]);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [mealModalOpen, setMealModalOpen] = useState(false);
+  const [waterModalOpen, setWaterModalOpen] = useState(false);
+  const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
+  const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | undefined>(undefined);
 
   // Загружаем записи для выбранной даты
   useEffect(() => {
@@ -77,6 +97,28 @@ const DiaryPage = () => {
     setSelectedDate(current => addDays(current, 1));
   };
 
+  // Открытие модального окна для добавления приема пищи
+  const openAddMealModal = () => {
+    setSelectedEntry(undefined);
+    setMealModalOpen(true);
+  };
+
+  // Открытие модального окна для добавления приема воды
+  const openAddWaterModal = () => {
+    setSelectedEntry(undefined);
+    setWaterModalOpen(true);
+  };
+
+  // Открытие модального окна для редактирования записи
+  const openEditEntryModal = (entry: DiaryEntry) => {
+    setSelectedEntry(entry);
+    if (entry.type === "meal") {
+      setMealModalOpen(true);
+    } else {
+      setWaterModalOpen(true);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between mb-4">
@@ -102,23 +144,53 @@ const DiaryPage = () => {
       </div>
 
       <div className="flex items-center justify-between mb-4">
-        <button className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow flex items-center">
-          <svg className="mr-2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-            <line x1="16" x2="16" y1="2" y2="6" />
-            <line x1="8" x2="8" y1="2" y2="6" />
-            <line x1="3" x2="21" y1="10" y2="10" />
-          </svg>
-          Календарь
-        </button>
+        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="flex items-center">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              Календарь
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="start">
+            <Calendar
+              mode="single"
+              selected={selectedDate}
+              onSelect={(date) => {
+                if (date) {
+                  setSelectedDate(date);
+                  setCalendarOpen(false);
+                }
+              }}
+              className={cn("pointer-events-auto")}
+            />
+          </PopoverContent>
+        </Popover>
         
-        <button className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow flex items-center">
-          <svg className="mr-2" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="11" cy="11" r="8" />
-            <path d="m21 21-4.3-4.3" />
-          </svg>
-          Поиск
-        </button>
+        <div className="flex space-x-2">
+          <Button variant="outline" className="flex items-center" onClick={() => setCleanupModalOpen(true)}>
+            Очистка фото
+          </Button>
+          <Button variant="outline" className="flex items-center">
+            <Search className="h-4 w-4 mr-2" />
+            Поиск
+          </Button>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-around mb-4">
+        <Button 
+          onClick={openAddMealModal} 
+          className="flex-1 mr-2"
+        >
+          Добавить приём пищи
+        </Button>
+        <Button 
+          onClick={openAddWaterModal}
+          variant="secondary" 
+          className="flex-1"
+        >
+          Добавить воду
+        </Button>
       </div>
 
       {dateEntries.length === 0 ? (
@@ -126,7 +198,7 @@ const DiaryPage = () => {
           <div className="text-4xl mb-4">📝</div>
           <h3 className="text-lg font-medium mb-2">Нет записей</h3>
           <p className="text-gray-500">
-            Добавьте приём пищи или воды через кнопку "+"
+            Добавьте приём пищи или воды через кнопки выше
           </p>
         </div>
       ) : (
@@ -140,7 +212,21 @@ const DiaryPage = () => {
                 <div>
                   <div className="flex justify-between items-center mb-2">
                     <div className="font-medium">{entry.mealType}</div>
-                    <div className="text-sm text-gray-500">{entry.time}</div>
+                    <div className="flex items-center">
+                      <div className="text-sm text-gray-500 mr-2">{entry.time}</div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEditEntryModal(entry)}>
+                            Редактировать
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                   
                   {entry.photoUrl ? (
@@ -167,23 +253,45 @@ const DiaryPage = () => {
                       <div className="font-medium">{entry.amount} мл воды</div>
                     </div>
                   </div>
-                  <div className="text-sm text-gray-500">{entry.time}</div>
+                  <div className="flex items-center">
+                    <div className="text-sm text-gray-500 mr-2">{entry.time}</div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => openEditEntryModal(entry)}>
+                          Редактировать
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
                 </div>
               )}
-              
-              <div className="mt-3 flex justify-end">
-                <button className="text-gray-500 hover:text-gray-700">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="1" />
-                    <circle cx="19" cy="12" r="1" />
-                    <circle cx="5" cy="12" r="1" />
-                  </svg>
-                </button>
-              </div>
             </div>
           ))}
         </div>
       )}
+
+      {/* Модальные окна для добавления/редактирования записей */}
+      <AddMealForm 
+        open={mealModalOpen} 
+        onOpenChange={setMealModalOpen}
+        existingMeal={selectedEntry?.type === "meal" ? selectedEntry : undefined}
+      />
+      
+      <AddWaterForm 
+        open={waterModalOpen} 
+        onOpenChange={setWaterModalOpen}
+        existingWater={selectedEntry?.type === "water" ? selectedEntry : undefined}
+      />
+      
+      <CleanupPhotosDialog 
+        open={cleanupModalOpen} 
+        onOpenChange={setCleanupModalOpen}
+      />
     </div>
   );
 };

@@ -10,6 +10,7 @@ export interface MealEntry {
   fullnessLevel?: number;
   emotionBefore?: string;
   emotionAfter?: string;
+  notes?: string;
 }
 
 export interface WaterEntry {
@@ -17,6 +18,8 @@ export interface WaterEntry {
   date: string;
   time: string;
   amount: number;
+  thirstLevel?: number;
+  notes?: string;
 }
 
 export interface Settings {
@@ -26,6 +29,7 @@ export interface Settings {
   weightWidget: boolean;
   height: number;
   weight: number;
+  keepPhotosMonths?: number; // Настройка для хранения фото (в месяцах)
 }
 
 export interface WeightMetric {
@@ -40,4 +44,3 @@ export interface AppData {
   settings: Settings;
   weights: WeightMetric[];
 }
-
