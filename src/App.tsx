@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,37 +33,35 @@ const App = () => {
   }, []);
 
   return (
-    <>
-      <AgreementModal />
-      <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
-              <Routes>
-                <Route element={
-                  <ErrorBoundary>
-                    <Layout />
-                  </ErrorBoundary>
-                }>
-                  <Route path="/" element={<Index />} />
-                  <Route path="/diary" element={<DiaryPage />} />
-                  <Route path="/add/:type" element={<AddPage />} />
-                  <Route path="/share" element={<SharePage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/analytics" element={<AnalyticsPage />} />
-                  <Route path="/notes" element={<NotesPage />} />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="/terms" element={<TermsPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Route>
-              </Routes>
-            </BrowserRouter>
-          </TooltipProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    </>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <AgreementModal />
+        <Toaster />
+        <Sonner />
+        <ErrorBoundary>
+          <BrowserRouter>
+            <Routes>
+              <Route element={
+                <ErrorBoundary>
+                  <Layout />
+                </ErrorBoundary>
+              }>
+                <Route path="/" element={<Index />} />
+                <Route path="/diary" element={<DiaryPage />} />
+                <Route path="/add/:type" element={<AddPage />} />
+                <Route path="/share" element={<SharePage />} />
+                <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/analytics" element={<AnalyticsPage />} />
+                <Route path="/notes" element={<NotesPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/terms" element={<TermsPage />} />
+                <Route path="*" element={<NotFound />} />
+              </Route>
+            </Routes>
+          </BrowserRouter>
+        </ErrorBoundary>
+      </TooltipProvider>
+    </QueryClientProvider>
   );
 };
 

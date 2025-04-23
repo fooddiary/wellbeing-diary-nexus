@@ -18,7 +18,7 @@ export const AgreementModal = () => {
   };
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Пользовательское соглашение</DialogTitle>
