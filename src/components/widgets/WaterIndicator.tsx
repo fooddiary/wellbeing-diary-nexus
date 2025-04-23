@@ -68,8 +68,7 @@ export const WaterIndicator = () => {
         <p className="text-xs text-muted-foreground">Дневная норма: {waterNorm} мл</p>
         <Progress 
           value={normCompletionPercentage} 
-          className="h-2 mt-2" 
-          indicatorClassName={isNormCompleted ? "bg-green-500" : ""} 
+          className={`h-2 mt-2 ${isNormCompleted ? 'bg-green-500' : ''}`}
         />
         {isNormCompleted && (
           <p className="text-xs text-green-500 mt-1">Поздравляем! Вы выполнили норму потребления воды на сегодня.</p>
