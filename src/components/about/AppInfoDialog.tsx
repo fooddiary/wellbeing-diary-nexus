@@ -1,31 +1,19 @@
-
 import React from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Info } from "lucide-react";
-
 interface AppInfoDialogProps {
   trigger?: React.ReactNode;
 }
-
-export const AppInfoDialog = ({ trigger }: AppInfoDialogProps) => {
-  return (
-    <Dialog>
+export const AppInfoDialog = ({
+  trigger
+}: AppInfoDialogProps) => {
+  return <Dialog>
       <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" size="sm">
+        {trigger || <Button variant="outline" size="sm">
             <Info className="mr-2 h-4 w-4" />
             Информация о приложении
-          </Button>
-        )}
+          </Button>}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
@@ -36,11 +24,7 @@ export const AppInfoDialog = ({ trigger }: AppInfoDialogProps) => {
         </DialogHeader>
         
         <div className="space-y-4">
-          <img 
-            src="/lovable-uploads/7e6409d3-afbe-4ee4-9423-53b0cfc43bd9.png" 
-            alt="Дневник питания" 
-            className="w-24 h-24 mx-auto"
-          />
+          <img src="/lovable-uploads/7e6409d3-afbe-4ee4-9423-53b0cfc43bd9.png" alt="Дневник питания" className="w-24 h-24 mx-auto" />
           
           <div className="space-y-2">
             <h3 className="font-medium">Преимущества ведения дневника:</h3>
@@ -67,14 +51,9 @@ export const AppInfoDialog = ({ trigger }: AppInfoDialogProps) => {
         </div>
         
         <DialogFooter className="sm:justify-center gap-2 flex-wrap">
-          <Button variant="secondary" size="sm">
-            <a href="/terms" className="no-underline">Условия использования</a>
-          </Button>
-          <Button variant="secondary" size="sm">
-            <a href="/privacy" className="no-underline">Политика конфиденциальности</a>
-          </Button>
+          
+          
         </DialogFooter>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>;
 };
