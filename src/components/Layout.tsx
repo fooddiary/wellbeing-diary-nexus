@@ -20,7 +20,7 @@ export const Layout = () => {
                 <line x1="4" x2="20" y1="18" y2="18" />
               </svg>
             </button>
-            <h1 className="text-xl font-bold ml-4 text-center mx-0 px-[74px]">Дневник </h1>
+            <h1 className="text-xl font-bold ml-4 text-center mx-0 px-[53px]">Дневник </h1>
           </div>
         </div>
         
