@@ -1,10 +1,19 @@
 
 import { useState } from "react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const SharePage = () => {
   const [exportType, setExportType] = useState("day");
   const [format, setFormat] = useState("clipboard");
   const [isSharing, setIsSharing] = useState(false);
+  const [date, setDate] = useState<Date>(new Date());
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
 
   const handleExport = () => {
     setIsSharing(true);
@@ -75,6 +84,99 @@ const SharePage = () => {
           </div>
         </div>
         
+        {exportType === "day" && (
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-3">Выберите дату</h3>
+            <div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {date ? format(date, "PPP") : <span>Выберите дату</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 pointer-events-auto">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(date) => date && setDate(date)}
+                    initialFocus
+                    className="p-3"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+        )}
+        
+        {exportType === "period" && (
+          <div className="mb-6">
+            <h3 className="text-lg font-medium mb-3">Выберите период</h3>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <span className="block text-sm mb-1">Начало</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !startDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {startDate ? format(startDate, "PPP") : <span>Выберите дату</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 pointer-events-auto">
+                    <Calendar
+                      mode="single"
+                      selected={startDate}
+                      onSelect={(date) => date && setStartDate(date)}
+                      initialFocus
+                      className="p-3"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              
+              <div>
+                <span className="block text-sm mb-1">Конец</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !endDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {endDate ? format(endDate, "PPP") : <span>Выберите дату</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 pointer-events-auto">
+                    <Calendar
+                      mode="single"
+                      selected={endDate}
+                      onSelect={(date) => date && setEndDate(date)}
+                      initialFocus
+                      className="p-3"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+            </div>
+          </div>
+        )}
+        
         <div className="mb-6">
           <h3 className="text-lg font-medium mb-3">Формат</h3>
           
@@ -116,30 +218,6 @@ const SharePage = () => {
             </label>
           </div>
         </div>
-        
-        {exportType === "period" && (
-          <div className="mb-6">
-            <h3 className="text-lg font-medium mb-3">Выберите период</h3>
-            
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm mb-1">Начало</label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm mb-1">Конец</label>
-                <input
-                  type="date"
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </div>
-            </div>
-          </div>
-        )}
         
         <button
           onClick={handleExport}

@@ -1,10 +1,14 @@
 
 import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
+import { AddMealForm } from "./forms/AddMealForm";
+import { AddWaterForm } from "./forms/AddWaterForm";
 
 export const BottomNav = () => {
   const location = useLocation();
   const [showAddMenu, setShowAddMenu] = useState(false);
+  const [openMealForm, setOpenMealForm] = useState(false);
+  const [openWaterForm, setOpenWaterForm] = useState(false);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -14,27 +18,35 @@ export const BottomNav = () => {
     setShowAddMenu(!showAddMenu);
   };
 
+  const handleAddMeal = () => {
+    setOpenMealForm(true);
+    setShowAddMenu(false);
+  };
+  
+  const handleAddWater = () => {
+    setOpenWaterForm(true);
+    setShowAddMenu(false);
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] dark:bg-gray-800">
       {showAddMenu && (
         <div className="absolute bottom-16 left-1/2 -translate-x-1/2 bg-white dark:bg-gray-800 rounded-lg shadow-lg p-2 w-48">
           <div className="flex flex-col space-y-2">
-            <Link
-              to="/add/meal"
+            <button
               className="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-              onClick={() => setShowAddMenu(false)}
+              onClick={handleAddMeal}
             >
               <span className="mr-2">🍲</span>
               <span>Приём пищи</span>
-            </Link>
-            <Link
-              to="/add/water"
+            </button>
+            <button
               className="flex items-center p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
-              onClick={() => setShowAddMenu(false)}
+              onClick={handleAddWater}
             >
               <span className="mr-2">💧</span>
               <span>Вода</span>
-            </Link>
+            </button>
           </div>
         </div>
       )}
@@ -98,6 +110,18 @@ export const BottomNav = () => {
           <span className="text-xs">Настройки</span>
         </Link>
       </div>
+      
+      {/* Модальное окно для добавления приема пищи */}
+      <AddMealForm 
+        open={openMealForm} 
+        onOpenChange={setOpenMealForm} 
+      />
+      
+      {/* Модальное окно для добавления воды */}
+      <AddWaterForm 
+        open={openWaterForm} 
+        onOpenChange={setOpenWaterForm} 
+      />
     </div>
   );
 };
