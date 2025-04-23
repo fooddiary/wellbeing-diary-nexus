@@ -9,7 +9,6 @@ import { initializeAppState } from "./store/useAppStore";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import DiaryPage from "./pages/DiaryPage";
-import AddPage from "./pages/AddPage";
 import SharePage from "./pages/SharePage";
 import SettingsPage from "./pages/SettingsPage";
 import AnalyticsPage from "./pages/AnalyticsPage";
@@ -48,7 +47,6 @@ const App = () => {
               }>
                 <Route path="/" element={<Index />} />
                 <Route path="/diary" element={<DiaryPage />} />
-                <Route path="/add/:type" element={<AddPage />} />
                 <Route path="/share" element={<SharePage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
