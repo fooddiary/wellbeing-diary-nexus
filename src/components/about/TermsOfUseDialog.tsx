@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -14,11 +13,13 @@ import { FileText } from "lucide-react";
 
 interface TermsOfUseDialogProps {
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const TermsOfUseDialog = ({ trigger }: TermsOfUseDialogProps) => {
+export const TermsOfUseDialog = ({ trigger, open, onOpenChange }: TermsOfUseDialogProps) => {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline">
@@ -87,7 +88,7 @@ export const TermsOfUseDialog = ({ trigger }: TermsOfUseDialogProps) => {
         </div>
         
         <DialogFooter>
-          <Button>Согласен</Button>
+          <Button onClick={() => { if(onOpenChange) onOpenChange(false); }}>Согласен</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

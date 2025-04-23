@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useAppStore } from "@/store/useAppStore";
 import { format, parseISO, addDays } from "date-fns";
@@ -38,16 +37,13 @@ const DiaryPage = () => {
   const [cleanupModalOpen, setCleanupModalOpen] = useState(false);
   const [selectedEntry, setSelectedEntry] = useState<DiaryEntry | undefined>(undefined);
 
-  // Загружаем записи для выбранной даты
   useEffect(() => {
     const fetchEntries = async () => {
       const dateString = format(selectedDate, 'yyyy-MM-dd');
       
-      // Фильтруем записи за выбранную дату
       const mealsForDate = state.meals.filter(meal => meal.date === dateString);
       const waterForDate = state.water.filter(water => water.date === dateString);
       
-      // Загружаем URL фотографий для приёмов пищи
       const enrichedMeals = await Promise.all(
         mealsForDate.map(async (meal) => {
           let photoUrl = undefined;
@@ -66,16 +62,14 @@ const DiaryPage = () => {
         })
       );
       
-      // Преобразуем записи о воде
       const enrichedWater = waterForDate.map(water => ({
         ...water,
         type: 'water' as const
       }));
       
-      // Объединяем и сортируем по времени
       const allEntries = [...enrichedMeals, ...enrichedWater]
         .sort((a, b) => {
-          return b.time.localeCompare(a.time); // Сортировка от более поздних к ранним
+          return b.time.localeCompare(a.time);
         });
       
       setDateEntries(allEntries);
@@ -84,32 +78,26 @@ const DiaryPage = () => {
     fetchEntries();
   }, [state.meals, state.water, selectedDate]);
 
-  // Форматируем дату для отображения
   const formattedDate = format(selectedDate, "EEEE, d MMMM", { locale: ru });
 
-  // Переход на предыдущий день
   const goToPreviousDay = () => {
     setSelectedDate(current => addDays(current, -1));
   };
 
-  // Переход на следующий день
   const goToNextDay = () => {
     setSelectedDate(current => addDays(current, 1));
   };
 
-  // Открытие модального окна для добавления приема пищи
   const openAddMealModal = () => {
     setSelectedEntry(undefined);
     setMealModalOpen(true);
   };
 
-  // Открытие модального окна для добавления приема воды
   const openAddWaterModal = () => {
     setSelectedEntry(undefined);
     setWaterModalOpen(true);
   };
 
-  // Открытие модального окна для редактирования записи
   const openEditEntryModal = (entry: DiaryEntry) => {
     setSelectedEntry(entry);
     if (entry.type === "meal") {
@@ -165,32 +153,12 @@ const DiaryPage = () => {
             />
           </PopoverContent>
         </Popover>
-        
         <div className="flex space-x-2">
-          <Button variant="outline" className="flex items-center" onClick={() => setCleanupModalOpen(true)}>
-            Очистка фото
-          </Button>
           <Button variant="outline" className="flex items-center">
             <Search className="h-4 w-4 mr-2" />
             Поиск
           </Button>
         </div>
-      </div>
-
-      <div className="flex items-center justify-around mb-4">
-        <Button 
-          onClick={openAddMealModal} 
-          className="flex-1 mr-2"
-        >
-          Добавить приём пищи
-        </Button>
-        <Button 
-          onClick={openAddWaterModal}
-          variant="secondary" 
-          className="flex-1"
-        >
-          Добавить воду
-        </Button>
       </div>
 
       {dateEntries.length === 0 ? (
@@ -275,7 +243,6 @@ const DiaryPage = () => {
         </div>
       )}
 
-      {/* Модальные окна для добавления/редактирования записей */}
       <AddMealForm 
         open={mealModalOpen} 
         onOpenChange={setMealModalOpen}

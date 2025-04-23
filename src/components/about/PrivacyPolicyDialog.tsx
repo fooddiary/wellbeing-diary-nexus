@@ -1,4 +1,3 @@
-
 import React from "react";
 import {
   Dialog,
@@ -14,11 +13,13 @@ import { Shield } from "lucide-react";
 
 interface PrivacyPolicyDialogProps {
   trigger?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export const PrivacyPolicyDialog = ({ trigger }: PrivacyPolicyDialogProps) => {
+export const PrivacyPolicyDialog = ({ trigger, open, onOpenChange }: PrivacyPolicyDialogProps) => {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="outline">
@@ -105,7 +106,7 @@ export const PrivacyPolicyDialog = ({ trigger }: PrivacyPolicyDialogProps) => {
         </div>
         
         <DialogFooter>
-          <Button>Понятно</Button>
+          <Button onClick={() => { if(onOpenChange) onOpenChange(false); }}>Понятно</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
