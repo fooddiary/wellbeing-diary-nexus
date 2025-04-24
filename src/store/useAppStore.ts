@@ -1,3 +1,4 @@
+
 import { useSyncExternalStore } from "react";
 import { AppData, MealEntry, WaterEntry, WeightMetric, Settings } from "@/types/AppData";
 import { eventBus } from "./eventBus";
@@ -26,7 +27,7 @@ import { toast } from "@/components/ui/sonner";
 import { appActions } from "./appActions";
 
 // Начальное состояние
-let appState: AppData = {
+export let appState: AppData = {
   meals: [],
   water: [],
   settings: {
