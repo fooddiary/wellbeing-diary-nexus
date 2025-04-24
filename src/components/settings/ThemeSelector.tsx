@@ -1,5 +1,7 @@
+
 import React from "react";
 import { Card } from "@/components/ui/card";
+import { useTheme } from "@/hooks/useTheme";
 
 type ThemeType = "light" | "dark" | "system";
 
@@ -9,6 +11,13 @@ interface ThemeSelectorProps {
 }
 
 export const ThemeSelector = ({ value, onChange }: ThemeSelectorProps) => {
+  const { theme, setTheme } = useTheme();
+
+  const handleThemeChange = (newTheme: ThemeType) => {
+    setTheme(newTheme);
+    onChange(newTheme);
+  };
+
   return (
     <Card className="p-4">
       <h3 className="text-lg font-medium mb-4">⚙️ Основные</h3>
@@ -18,7 +27,7 @@ export const ThemeSelector = ({ value, onChange }: ThemeSelectorProps) => {
             <span>🌓 Тема</span>
             <select
               value={value}
-              onChange={(e) => onChange(e.target.value as ThemeType)}
+              onChange={(e) => handleThemeChange(e.target.value as ThemeType)}
               className="border border-gray-300 rounded p-2 bg-background"
             >
               <option value="light">Светлая</option>

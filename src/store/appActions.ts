@@ -8,6 +8,8 @@ import {
 import { validateMeal, validateWater, validateWeight, validateSettings } from "@/lib/validation";
 import { toast } from "@/components/ui/sonner";
 import { logError } from "@/lib/errorLogger";
+import { setAppState } from "./useAppStore";
+import { appState } from "./useAppStore";
 
 // Все actions вынесены для сокращения файла useAppStore.ts
 // ...структура такая же как была в useAppStore.ts, импортировать в useAppStore...
@@ -178,13 +180,32 @@ export const appActions = {
   // SETTINGS ACTIONS
   updateSettings: async (settings: Partial<Settings>) => {
     try {
-      // Объединяем с текущими настройками
+      // Получаем текущее состояние из appState
+      const currentSettings = appState.settings;
+      
+      // Объединяем текущие настройки с новыми
+      const updatedSettings = {
+        ...currentSettings,
+        ...settings
+      };
       
       // Сохраняем в базу
-      await saveSettings(settings as Settings);
+      await saveSettings(updatedSettings);
+      
+      // Обновляем состояние приложения
+      setAppState({
+        ...appState,
+        settings: updatedSettings
+      });
       
       // Дублируем в localStorage для отказоустойчивости
+      try {
+        localStorage.setItem('appSettings', JSON.stringify(updatedSettings));
+      } catch (e) {
+        console.warn('Не удалось сохранить настройки в localStorage', e);
+      }
       
+      return updatedSettings;
     } catch (e) {
       logError('Ошибка при обновлении настроек', e);
       toast.error("Не удалось обновить настройки");

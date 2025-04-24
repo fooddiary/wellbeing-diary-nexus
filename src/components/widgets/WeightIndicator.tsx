@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -14,14 +13,11 @@ export const WeightIndicator = () => {
   const [openDialog, setOpenDialog] = useState(false);
   const [weightValue, setWeightValue] = useState(appState.settings.weight.toString());
   
-  // Получаем текущий вес пользователя
   const currentWeight = appState.settings.weight;
   
-  // Получаем вес пользователя, записанный сегодня (если есть)
   const today = format(new Date(), "yyyy-MM-dd");
   const todayWeightEntry = appState.weights.find(entry => entry.date === today);
   
-  // Функция для сохранения веса
   const saveWeight = async () => {
     try {
       const weight = parseFloat(weightValue);
@@ -31,10 +27,8 @@ export const WeightIndicator = () => {
         return;
       }
       
-      // Обновляем настройки пользователя
       await appActions.updateSettings({ weight });
       
-      // Если у нас уже есть запись веса на сегодняшний день, обновляем её
       if (todayWeightEntry) {
         await appActions.updateWeight({
           id: todayWeightEntry.id,
@@ -42,17 +36,17 @@ export const WeightIndicator = () => {
           weight
         });
       } else {
-        // Иначе создаем новую запись
         await appActions.addWeight({
           date: today,
           weight
         });
       }
       
-      toast.success("Вес успешно сохранен");
       setOpenDialog(false);
+      toast.success("Вес успешно сохранен");
     } catch (error) {
       toast.error("Не удалось сохранить вес");
+      console.error(error);
     }
   };
   

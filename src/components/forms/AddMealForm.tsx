@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -45,7 +45,6 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
   const [appState, appActions] = useAppStore();
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   
-  // Состояния для формы
   const [formData, setFormData] = useState<MealFormData>({
     date: new Date(),
     mealType: "Завтрак",
@@ -57,10 +56,8 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
     notes: ""
   });
   
-  // При открытии формы с существующим приемом пищи
   useEffect(() => {
     if (existingMeal) {
-      // Преобразуем данные существующего приема пищи для формы
       setFormData({
         id: existingMeal.id,
         date: new Date(`${existingMeal.date}T${existingMeal.time}`),
@@ -74,17 +71,14 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
         notes: ""
       });
       
-      // Загружаем фото, если оно есть
       if (existingMeal.photoPath) {
         loadPhoto(existingMeal.photoPath);
       }
     } else {
-      // Сбрасываем форму при новом добавлении
       resetForm();
     }
   }, [existingMeal, open]);
   
-  // Загрузка фото
   const loadPhoto = async (path: string) => {
     try {
       const url = await getPhotoUrl(path);
@@ -95,7 +89,6 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
     }
   };
   
-  // Сброс формы
   const resetForm = () => {
     setFormData({
       date: new Date(),
@@ -110,7 +103,6 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
     setPhotoUrl(null);
   };
   
-  // Обработчик выбора фото
   const handlePhotoSelect = async () => {
     const photoPath = await pickPhotoFromGallery();
     if (photoPath) {
@@ -119,7 +111,6 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
     }
   };
   
-  // Обработчик удаления фото
   const handlePhotoDelete = async () => {
     if (formData.photoPath) {
       try {
@@ -132,10 +123,8 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
     }
   };
   
-  // Обработчик сохранения формы
   const handleSubmit = async () => {
     try {
-      // Формируем данные для сохранения
       const mealData: Partial<MealEntry> = {
         date: format(formData.date, "yyyy-MM-dd"),
         time: format(formData.date, "HH:mm"),
@@ -148,7 +137,6 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
         emotionAfter: formData.emotionAfter
       };
       
-      // Обновляем существующую запись или создаем новую
       if (existingMeal?.id) {
         await appActions.updateMeal({ ...mealData, id: existingMeal.id } as MealEntry);
         toast.success("Запись обновлена");
@@ -157,7 +145,6 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
         toast.success("Запись добавлена");
       }
       
-      // Закрываем форму
       onOpenChange(false);
       resetForm();
     } catch (error) {
@@ -165,20 +152,16 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
     }
   };
   
-  // Обработчик удаления записи
   const handleDelete = async () => {
     if (existingMeal?.id) {
       try {
-        // Если есть фото, удаляем его
         if (existingMeal.photoPath) {
           await deletePhotoFromDevice(existingMeal.photoPath);
         }
         
-        // Удаляем запись
         await appActions.deleteMeal(existingMeal.id);
         toast.success("Запись удалена");
         
-        // Закрываем форму
         onOpenChange(false);
       } catch (error) {
         toast.error("Не удалось удалить запись");
@@ -188,157 +171,153 @@ export const AddMealForm: React.FC<AddMealFormProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md md:max-w-lg">
+      <DialogContent className="sm:max-w-md md:max-w-lg max-h-[90vh]" aria-describedby="meal-form-description">
         <DialogHeader>
           <DialogTitle>
             {existingMeal ? "Редактирование записи" : "Запишите свой приём пищи и связанные эмоции"}
           </DialogTitle>
+          <DialogDescription id="meal-form-description">
+            Заполните информацию о приеме пищи
+          </DialogDescription>
         </DialogHeader>
         
-        <div className="grid gap-4 py-4">
-          {/* Дата и время */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Дата и время</label>
-            <DateTimePicker 
-              date={formData.date} 
-              setDate={(date) => setFormData(prev => ({ ...prev, date }))}
-            />
-          </div>
-          
-          {/* Тип приема пищи */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Тип приёма пищи</label>
-            <Select 
-              value={formData.mealType}
-              onValueChange={(value) => setFormData(prev => ({ ...prev, mealType: value }))}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Выберите тип приёма пищи" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Завтрак">Завтрак</SelectItem>
-                <SelectItem value="Обед">Обед</SelectItem>
-                <SelectItem value="Ужин">Ужин</SelectItem>
-                <SelectItem value="Перекус">Перекус</SelectItem>
-                <SelectItem value="Напиток">Напиток</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          {/* Эмоции до еды */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Эмоции до еды</label>
-            <EmojiRating 
-              value={formData.emotionBefore}
-              onChange={(value) => setFormData(prev => ({ ...prev, emotionBefore: value }))}
-            />
-            <Textarea 
-              placeholder="Ваши ощущения и эмоции до еды"
-              value={formData.emotionBefore ? getEmotionLabel(formData.emotionBefore) : ""}
-              onChange={(e) => {}}
-              className="mt-2"
-            />
-          </div>
-          
-          {/* Шкала голода */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">
-              Шкала голода: {formData.hungerLevel}
-            </label>
-            <Slider 
-              min={1} 
-              max={10} 
-              step={1} 
-              value={[formData.hungerLevel]} 
-              onValueChange={(values) => setFormData(prev => ({ ...prev, hungerLevel: values[0] }))}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Не голоден (1)</span>
-              <span>Очень голоден (10)</span>
+        <ScrollArea className="flex-grow pr-4">
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Дата и время</label>
+              <DateTimePicker 
+                date={formData.date} 
+                setDate={(date) => setFormData(prev => ({ ...prev, date }))}
+              />
             </div>
-          </div>
-          
-          {/* Фото блюда */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Фото блюда</label>
-            {photoUrl ? (
-              <div className="relative">
-                <img 
-                  src={photoUrl} 
-                  alt="Фото блюда" 
-                  className="w-full h-48 object-cover rounded-md"
-                />
-                <Button 
-                  variant="destructive" 
-                  size="sm"
-                  className="absolute top-2 right-2"
-                  onClick={handlePhotoDelete}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
+            
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Тип приёма пищи</label>
+              <Select 
+                value={formData.mealType}
+                onValueChange={(value) => setFormData(prev => ({ ...prev, mealType: value }))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Выберите тип приёма пищи" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Завтрак">Завтрак</SelectItem>
+                  <SelectItem value="Обед">Обед</SelectItem>
+                  <SelectItem value="Ужин">Ужин</SelectItem>
+                  <SelectItem value="Перекус">Перекус</SelectItem>
+                  <SelectItem value="Напиток">Напиток</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Эмоции до еды</label>
+              <EmojiRating 
+                value={formData.emotionBefore}
+                onChange={(value) => setFormData(prev => ({ ...prev, emotionBefore: value }))}
+              />
+              <Textarea 
+                placeholder="Ваши ощущения и эмоции до еды"
+                value={formData.emotionBefore ? getEmotionLabel(formData.emotionBefore) : ""}
+                onChange={(e) => {}}
+                className="mt-2"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">
+                Шкала голода: {formData.hungerLevel}
+              </label>
+              <Slider 
+                min={1} 
+                max={10} 
+                step={1} 
+                value={[formData.hungerLevel]} 
+                onValueChange={(values) => setFormData(prev => ({ ...prev, hungerLevel: values[0] }))}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Не голоден (1)</span>
+                <span>Очень голоден (10)</span>
               </div>
-            ) : (
-              <Button variant="outline" onClick={handlePhotoSelect} className="h-48">
-                Выбрать из галереи
-              </Button>
-            )}
-          </div>
-          
-          {/* Описание блюда */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Описание блюда</label>
-            <Textarea 
-              placeholder="Что съели?"
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-            />
-          </div>
-          
-          {/* Эмоции после еды */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Эмоции после еды</label>
-            <EmojiRating 
-              value={formData.emotionAfter}
-              onChange={(value) => setFormData(prev => ({ ...prev, emotionAfter: value }))}
-            />
-            <Textarea 
-              placeholder="Ваши ощущения и эмоции после еды"
-              value={formData.emotionAfter ? getEmotionLabel(formData.emotionAfter) : ""}
-              onChange={(e) => {}}
-              className="mt-2"
-            />
-          </div>
-          
-          {/* Шкала сытости */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">
-              Шкала сытости: {formData.fullnessLevel}
-            </label>
-            <Slider 
-              min={1} 
-              max={10} 
-              step={1} 
-              value={[formData.fullnessLevel]} 
-              onValueChange={(values) => setFormData(prev => ({ ...prev, fullnessLevel: values[0] }))}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Голоден (1)</span>
-              <span>Полностью сыт (10)</span>
+            </div>
+            
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Фото блюда</label>
+              {photoUrl ? (
+                <div className="relative">
+                  <img 
+                    src={photoUrl} 
+                    alt="Фото блюда" 
+                    className="w-full h-48 object-cover rounded-md"
+                  />
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    className="absolute top-2 right-2"
+                    onClick={handlePhotoDelete}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="outline" onClick={handlePhotoSelect} className="h-48">
+                  Выбрать из галереи
+                </Button>
+              )}
+            </div>
+            
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Описание блюда</label>
+              <Textarea 
+                placeholder="Что съели?"
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Эмоции после еды</label>
+              <EmojiRating 
+                value={formData.emotionAfter}
+                onChange={(value) => setFormData(prev => ({ ...prev, emotionAfter: value }))}
+              />
+              <Textarea 
+                placeholder="Ваши ощущения и эмоции после еды"
+                value={formData.emotionAfter ? getEmotionLabel(formData.emotionAfter) : ""}
+                onChange={(e) => {}}
+                className="mt-2"
+              />
+            </div>
+            
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">
+                Шкала сытости: {formData.fullnessLevel}
+              </label>
+              <Slider 
+                min={1} 
+                max={10} 
+                step={1} 
+                value={[formData.fullnessLevel]} 
+                onValueChange={(values) => setFormData(prev => ({ ...prev, fullnessLevel: values[0] }))}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Голоден (1)</span>
+                <span>Полностью сыт (10)</span>
+              </div>
+            </div>
+            
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Дополнительные заметки</label>
+              <Textarea 
+                placeholder="Любые дополнительные заметки..."
+                value={formData.notes || ""}
+                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+              />
             </div>
           </div>
-          
-          {/* Дополнительные заметки */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Дополнительные заметки</label>
-            <Textarea 
-              placeholder="Любые дополнительные заметки..."
-              value={formData.notes || ""}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-            />
-          </div>
-        </div>
+        </ScrollArea>
         
-        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
+        <DialogFooter>
           {existingMeal && (
             <Button 
               variant="destructive"
