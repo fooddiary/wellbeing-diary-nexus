@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -8,11 +9,15 @@ import { BugReportDialog } from "@/components/BugReportDialog";
 import { AppInfoDialog } from "@/components/about/AppInfoDialog";
 import { PrivacyPolicyDialog } from "@/components/about/PrivacyPolicyDialog";
 import { TermsOfUseDialog } from "@/components/about/TermsOfUseDialog";
+
+type InfoDialogType = false | "privacy" | "terms";
+
 const AboutPage = () => {
   const [logViewerOpen, setLogViewerOpen] = useState(false);
   const [backupManagerOpen, setBackupManagerOpen] = useState(false);
   const [bugReportOpen, setBugReportOpen] = useState(false);
-  const [infoOpen, setInfoOpen] = useState(false);
+  const [infoOpen, setInfoOpen] = useState<InfoDialogType>(false);
+
   return <div className="space-y-6 max-w-2xl mx-auto px-1 sm:px-2">
       <Card>
         <CardHeader>
@@ -28,7 +33,6 @@ const AboutPage = () => {
         <CardContent>
           {/* Блок "Дневник питания" с описанием */}
           
-
           <div className="space-y-4">
             <div className="flex justify-center mb-4">
               <AppInfoDialog />
@@ -98,4 +102,5 @@ const AboutPage = () => {
       {infoOpen === "terms" && <TermsOfUseDialog open={true} onOpenChange={() => setInfoOpen(false)} />}
     </div>;
 };
+
 export default AboutPage;
