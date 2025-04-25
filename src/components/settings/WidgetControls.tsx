@@ -22,7 +22,7 @@ export const WidgetControls = ({
       
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <span>💧 Индикатор воды</span>
+          <span className="pr-2">💧 Индикатор воды</span>
           <Switch 
             checked={waterWidget}
             onCheckedChange={(checked) => onChange("waterWidget", checked)}
@@ -30,7 +30,7 @@ export const WidgetControls = ({
         </div>
         
         <div className="flex items-center justify-between">
-          <span>🍽️ Счётчик приёмов пищи</span>
+          <span className="pr-2">🍽️ Счётчик приёмов пищи</span>
           <Switch 
             checked={mealCountWidget}
             onCheckedChange={(checked) => onChange("mealCountWidget", checked)}
@@ -38,7 +38,7 @@ export const WidgetControls = ({
         </div>
         
         <div className="flex items-center justify-between">
-          <span>⚖️ Вес</span>
+          <span className="pr-2">⚖️ Вес</span>
           <Switch 
             checked={weightWidget}
             onCheckedChange={(checked) => onChange("weightWidget", checked)}

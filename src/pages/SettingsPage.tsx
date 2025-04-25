@@ -9,6 +9,7 @@ import { ThemeSelector } from "@/components/settings/ThemeSelector";
 import { WidgetControls } from "@/components/settings/WidgetControls";
 import { PersonalDataSettings } from "@/components/settings/PersonalDataSettings";
 import { SecuritySettings } from "@/components/settings/SecuritySettings";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const SettingsPage = () => {
   const [appState, appActions] = useAppStore();
@@ -21,8 +22,9 @@ const SettingsPage = () => {
     weight: appState.settings.weight || 70,
   });
   
+  // Загружаем актуальные настройки при монтировании компонента
   useEffect(() => {
-    // Синхронизируем локальное состояние при изменении глобального
+    // Ниже синхронизируем локальное состояние при изменении глобального
     setSettings({
       theme: appState.settings.theme || "light",
       waterWidget: appState.settings.waterWidget !== undefined ? appState.settings.waterWidget : true,
@@ -32,6 +34,19 @@ const SettingsPage = () => {
       weight: appState.settings.weight || 70,
     });
   }, [appState.settings]);
+  
+  // Немедленно примененяем изменения при обновлении настроек
+  const handleSettingChange = async (change: Partial<typeof settings>) => {
+    const newSettings = { ...settings, ...change };
+    setSettings(newSettings);
+    
+    // Применяем изменения сразу
+    try {
+      await appActions.updateSettings(change);
+    } catch (error) {
+      console.error("Ошибка при обновлении настроек:", error);
+    }
+  };
   
   const handleSaveSettings = async () => {
     try {
@@ -44,42 +59,44 @@ const SettingsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-bold mb-6">Настройки</h2>
-      
-      <div className="space-y-6">
-        <ThemeSelector 
-          value={settings.theme} 
-          onChange={(theme) => setSettings({...settings, theme})} 
-        />
+    <ScrollArea className="h-[calc(100vh-4rem)]">
+      <div className="space-y-6 px-2 sm:px-4 pb-6">
+        <h2 className="text-2xl font-bold mb-6">Настройки</h2>
         
-        <WidgetControls 
-          waterWidget={settings.waterWidget}
-          mealCountWidget={settings.mealCountWidget}
-          weightWidget={settings.weightWidget}
-          onChange={(key, value) => {
-            setSettings({...settings, [key]: value});
-          }}
-        />
-        
-        <PersonalDataSettings 
-          height={settings.height}
-          weight={settings.weight}
-          onChange={(key, value) => {
-            setSettings({...settings, [key]: value});
-          }}
-        />
-        
-        <SecuritySettings />
-        
-        <Button
-          onClick={handleSaveSettings}
-          className="w-full bg-primary text-white py-3 rounded font-medium"
-        >
-          Сохранить настройки
-        </Button>
+        <div className="space-y-6">
+          <ThemeSelector 
+            value={settings.theme} 
+            onChange={(theme) => handleSettingChange({theme})} 
+          />
+          
+          <WidgetControls 
+            waterWidget={settings.waterWidget}
+            mealCountWidget={settings.mealCountWidget}
+            weightWidget={settings.weightWidget}
+            onChange={(key, value) => {
+              handleSettingChange({[key]: value});
+            }}
+          />
+          
+          <PersonalDataSettings 
+            height={settings.height}
+            weight={settings.weight}
+            onChange={(key, value) => {
+              handleSettingChange({[key]: value});
+            }}
+          />
+          
+          <SecuritySettings />
+          
+          <Button
+            onClick={handleSaveSettings}
+            className="w-full bg-primary text-white py-3 rounded font-medium"
+          >
+            Сохранить настройки
+          </Button>
+        </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 };
 

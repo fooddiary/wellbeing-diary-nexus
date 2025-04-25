@@ -1,9 +1,10 @@
+
 import { MealEntry, WaterEntry, WeightMetric, Settings, AppData } from "@/types/AppData";
 import { 
   addMealEntry, updateMealEntry, deleteMealEntry,
   addWaterEntry, updateWaterEntry, deleteWaterEntry,
   addWeightEntry, updateWeightEntry, deleteWeightEntry,
-  saveSettings
+  saveSettings, getAllMeals, getAllWater, getAllWeights
 } from "@/lib/sqliteClient";
 import { validateMeal, validateWater, validateWeight, validateSettings } from "@/lib/validation";
 import { toast } from "@/components/ui/sonner";
@@ -30,6 +31,11 @@ export const appActions = {
       
       // Обновляем состояние
       const newMeal = {...meal, id: id as number};
+      
+      // Получаем обновленный список приемов пищи
+      const meals = await getAllMeals();
+      setAppState({ meals }); // Обновляем UI
+      
       return newMeal;
     } catch (e) {
       logError('Ошибка при добавлении приёма пищи', e);
@@ -50,6 +56,10 @@ export const appActions = {
       // Обновляем в базе
       await updateMealEntry(meal);
       
+      // Получаем обновленный список
+      const meals = await getAllMeals();
+      setAppState({ meals }); // Обновляем UI
+      
     } catch (e) {
       logError('Ошибка при обновлении приёма пищи', e);
       toast.error("Не удалось обновить приём пищи");
@@ -61,6 +71,10 @@ export const appActions = {
     try {
       // Удаляем из базы
       await deleteMealEntry(id);
+      
+      // Получаем обновленный список
+      const meals = await getAllMeals();
+      setAppState({ meals }); // Обновляем UI
       
     } catch (e) {
       logError('Ошибка при удалении приёма пищи', e);
@@ -84,6 +98,11 @@ export const appActions = {
       
       // Обновляем состояние
       const newWater = {...water, id: id as number};
+      
+      // Получаем обновленный список воды
+      const waterEntries = await getAllWater();
+      setAppState({ water: waterEntries }); // Обновляем UI
+      
       return newWater;
     } catch (e) {
       logError('Ошибка при добавлении записи о воде', e);
@@ -104,6 +123,10 @@ export const appActions = {
       // Обновляем в базе
       await updateWaterEntry(water);
       
+      // Получаем обновленный список
+      const waterEntries = await getAllWater();
+      setAppState({ water: waterEntries }); // Обновляем UI
+      
     } catch (e) {
       logError('Ошибка при обновлении записи о воде', e);
       toast.error("Не удалось обновить запись о воде");
@@ -115,6 +138,10 @@ export const appActions = {
     try {
       // Удаляем из базы
       await deleteWaterEntry(id);
+      
+      // Получаем обновленный список
+      const waterEntries = await getAllWater();
+      setAppState({ water: waterEntries }); // Обновляем UI
       
     } catch (e) {
       logError('Ошибка при удалении записи о воде', e);
@@ -138,6 +165,11 @@ export const appActions = {
       
       // Обновляем состояние
       const newWeight = {...weight, id: id as number};
+      
+      // Получаем обновленный список весов
+      const weights = await getAllWeights();
+      setAppState({ weights }); // Обновляем UI
+      
       return newWeight;
     } catch (e) {
       logError('Ошибка при добавлении веса', e);
@@ -158,6 +190,10 @@ export const appActions = {
       // Обновляем в базе
       await updateWeightEntry(weight);
       
+      // Получаем обновленный список
+      const weights = await getAllWeights();
+      setAppState({ weights }); // Обновляем UI
+      
     } catch (e) {
       logError('Ошибка при обновлении веса', e);
       toast.error("Не удалось обновить вес");
@@ -169,6 +205,10 @@ export const appActions = {
     try {
       // Удаляем из базы
       await deleteWeightEntry(id);
+      
+      // Получаем обновленный список
+      const weights = await getAllWeights();
+      setAppState({ weights }); // Обновляем UI
       
     } catch (e) {
       logError('Ошибка при удалении веса', e);
@@ -194,7 +234,6 @@ export const appActions = {
       
       // Обновляем состояние приложения
       setAppState({
-        ...appState,
         settings: updatedSettings
       });
       

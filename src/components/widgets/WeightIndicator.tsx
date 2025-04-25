@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,13 +8,24 @@ import { Weight } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { format } from "date-fns";
 import { toast } from "@/components/ui/sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export const WeightIndicator = () => {
   const [appState, appActions] = useAppStore();
   const [openDialog, setOpenDialog] = useState(false);
   const [weightValue, setWeightValue] = useState(appState.settings.weight.toString());
+  const [currentWeight, setCurrentWeight] = useState(appState.settings.weight);
+  const [todayRecorded, setTodayRecorded] = useState(false);
   
-  const currentWeight = appState.settings.weight;
+  // Обновляем состояние при изменении данных в appState
+  useEffect(() => {
+    setCurrentWeight(appState.settings.weight);
+    setWeightValue(appState.settings.weight.toString());
+    
+    const today = format(new Date(), "yyyy-MM-dd");
+    const todayWeightEntry = appState.weights.find(entry => entry.date === today);
+    setTodayRecorded(!!todayWeightEntry);
+  }, [appState.settings.weight, appState.weights]);
   
   const today = format(new Date(), "yyyy-MM-dd");
   const todayWeightEntry = appState.weights.find(entry => entry.date === today);
@@ -60,7 +72,7 @@ export const WeightIndicator = () => {
         <CardContent>
           <div className="text-2xl font-bold">{currentWeight} кг</div>
           <p className="text-xs text-muted-foreground">
-            {todayWeightEntry 
+            {todayRecorded 
               ? "Записано сегодня" 
               : "Не записано сегодня"}
           </p>
@@ -72,29 +84,31 @@ export const WeightIndicator = () => {
             className="w-full"
             onClick={() => setOpenDialog(true)}
           >
-            {todayWeightEntry ? "Обновить вес" : "Записать вес"}
+            {todayRecorded ? "Обновить вес" : "Записать вес"}
           </Button>
         </CardFooter>
       </Card>
       
       <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md max-h-[90vh] overflow-hidden">
           <DialogHeader>
             <DialogTitle>Запишите свой вес</DialogTitle>
           </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Input
-                type="number"
-                step="0.1"
-                value={weightValue}
-                onChange={(e) => setWeightValue(e.target.value)}
-                className="col-span-3"
-                placeholder="Введите вес в кг"
-              />
-              <span className="text-sm">кг</span>
+          <ScrollArea className="max-h-[calc(90vh-10rem)]">
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Input
+                  type="number"
+                  step="0.1"
+                  value={weightValue}
+                  onChange={(e) => setWeightValue(e.target.value)}
+                  className="col-span-3"
+                  placeholder="Введите вес в кг"
+                />
+                <span className="text-sm">кг</span>
+              </div>
             </div>
-          </div>
+          </ScrollArea>
           <DialogFooter>
             <Button variant="outline" onClick={() => setOpenDialog(false)}>
               Отмена

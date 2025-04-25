@@ -13,6 +13,14 @@ interface PersonalDataSettingsProps {
 
 export const PersonalDataSettings = ({ height, weight, onChange }: PersonalDataSettingsProps) => {
   const [isExpanded, setIsExpanded] = useState(true);
+  
+  // Обработчик изменения с валидацией
+  const handleChange = (key: string, value: string) => {
+    const numValue = parseInt(value);
+    if (!isNaN(numValue) && numValue > 0) {
+      onChange(key, numValue);
+    }
+  };
 
   return (
     <Card className="p-4">
@@ -34,7 +42,7 @@ export const PersonalDataSettings = ({ height, weight, onChange }: PersonalDataS
             <Input
               type="number"
               value={height}
-              onChange={(e) => onChange("height", parseInt(e.target.value) || 0)}
+              onChange={(e) => handleChange("height", e.target.value)}
               className="w-full"
             />
           </div>
@@ -44,7 +52,7 @@ export const PersonalDataSettings = ({ height, weight, onChange }: PersonalDataS
             <Input
               type="number"
               value={weight}
-              onChange={(e) => onChange("weight", parseInt(e.target.value) || 0)}
+              onChange={(e) => handleChange("weight", e.target.value)}
               className="w-full"
             />
             <p className="text-xs text-muted-foreground mt-1">

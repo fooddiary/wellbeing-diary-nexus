@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Slider } from "@/components/ui/slider";
 import { DateTimePicker } from "@/components/DateTimePicker";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 import { useAppStore } from "@/store/useAppStore";
 import { toast } from "@/components/ui/sonner";
@@ -121,119 +122,121 @@ export const AddWaterForm: React.FC<AddWaterFormProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md md:max-w-lg">
+      <DialogContent className="sm:max-w-md md:max-w-lg max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle>
             {existingWater ? "Редактирование записи" : "Запишите сколько вы выпили воды"}
           </DialogTitle>
         </DialogHeader>
         
-        <div className="grid gap-4 py-4">
-          {/* Дата и время */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Дата и время</label>
-            <DateTimePicker 
-              date={formData.date} 
-              setDate={(date) => setFormData(prev => ({ ...prev, date }))}
-            />
-          </div>
-          
-          {/* Объем воды */}
-          <div className="grid gap-2">
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium">Объем воды: {formData.amount} мл</label>
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => adjustAmount(-50)}
-                  disabled={formData.amount <= 50}
-                >
-                  -
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => adjustAmount(50)}
-                  disabled={formData.amount >= 2000}
-                >
-                  +
-                </Button>
-              </div>
-            </div>
-            <div className="relative">
-              <Slider 
-                min={50} 
-                max={2000} 
-                step={50} 
-                value={[formData.amount]} 
-                onValueChange={(values) => setFormData(prev => ({ ...prev, amount: values[0] }))}
+        <ScrollArea className="max-h-[calc(90vh-10rem)] pr-4">
+          <div className="grid gap-4 py-4">
+            {/* Дата и время */}
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Дата и время</label>
+              <DateTimePicker 
+                date={formData.date} 
+                setDate={(date) => setFormData(prev => ({ ...prev, date }))}
               />
-              <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                <span>50 мл</span>
-                <span>2000 мл</span>
+            </div>
+            
+            {/* Объем воды */}
+            <div className="grid gap-2">
+              <div className="flex items-center justify-between">
+                <label className="text-sm font-medium">Объем воды: {formData.amount} мл</label>
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => adjustAmount(-50)}
+                    disabled={formData.amount <= 50}
+                  >
+                    -
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => adjustAmount(50)}
+                    disabled={formData.amount >= 2000}
+                  >
+                    +
+                  </Button>
+                </div>
               </div>
-              
-              <div className="mt-4 flex items-center justify-center space-x-2">
-                <Button 
-                  variant="outline"
-                  onClick={() => setFormData(prev => ({ ...prev, amount: 100 }))}
-                  className="flex-1"
-                >
-                  <Droplet className="h-4 w-4 mr-2" />
-                  100 мл
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => setFormData(prev => ({ ...prev, amount: 250 }))}
-                  className="flex-1"
-                >
-                  <Droplet className="h-4 w-4 mr-2" />
-                  250 мл
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => setFormData(prev => ({ ...prev, amount: 500 }))}
-                  className="flex-1"
-                >
-                  <Droplet className="h-4 w-4 mr-2" />
-                  500 мл
-                </Button>
+              <div className="relative">
+                <Slider 
+                  min={50} 
+                  max={2000} 
+                  step={50} 
+                  value={[formData.amount]} 
+                  onValueChange={(values) => setFormData(prev => ({ ...prev, amount: values[0] }))}
+                />
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                  <span>50 мл</span>
+                  <span>2000 мл</span>
+                </div>
+                
+                <div className="mt-4 flex items-center justify-center space-x-2">
+                  <Button 
+                    variant="outline"
+                    onClick={() => setFormData(prev => ({ ...prev, amount: 100 }))}
+                    className="flex-1"
+                  >
+                    <Droplet className="h-4 w-4 mr-2" />
+                    100 мл
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setFormData(prev => ({ ...prev, amount: 250 }))}
+                    className="flex-1"
+                  >
+                    <Droplet className="h-4 w-4 mr-2" />
+                    250 мл
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => setFormData(prev => ({ ...prev, amount: 500 }))}
+                    className="flex-1"
+                  >
+                    <Droplet className="h-4 w-4 mr-2" />
+                    500 мл
+                  </Button>
+                </div>
               </div>
             </div>
-          </div>
-          
-          {/* Шкала жажды */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">
-              Уровень жажды: {formData.thirstLevel}
-            </label>
-            <Slider 
-              min={1} 
-              max={10} 
-              step={1} 
-              value={[formData.thirstLevel]} 
-              onValueChange={(values) => setFormData(prev => ({ ...prev, thirstLevel: values[0] }))}
-            />
-            <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Не хочу пить (1)</span>
-              <span>Сильная жажда (10)</span>
+            
+            {/* Шкала жажды */}
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">
+                Уровень жажды: {formData.thirstLevel}
+              </label>
+              <Slider 
+                min={1} 
+                max={10} 
+                step={1} 
+                value={[formData.thirstLevel]} 
+                onValueChange={(values) => setFormData(prev => ({ ...prev, thirstLevel: values[0] }))}
+              />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>Не хочу пить (1)</span>
+                <span>Сильная жажда (10)</span>
+              </div>
+            </div>
+            
+            {/* Заметки */}
+            <div className="grid gap-2">
+              <label className="text-sm font-medium">Заметки</label>
+              <Textarea 
+                placeholder="Дополнительные заметки..."
+                value={formData.notes}
+                onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                className="min-h-24"
+              />
             </div>
           </div>
-          
-          {/* Заметки */}
-          <div className="grid gap-2">
-            <label className="text-sm font-medium">Заметки</label>
-            <Textarea 
-              placeholder="Дополнительные заметки..."
-              value={formData.notes}
-              onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-              className="min-h-24"
-            />
-          </div>
-        </div>
+        </ScrollArea>
         
-        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
+        <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2 mt-4">
           {existingWater && (
             <Button 
               variant="destructive"

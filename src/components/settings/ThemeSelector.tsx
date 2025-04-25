@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { useTheme } from "@/hooks/useTheme";
 
@@ -12,6 +12,13 @@ interface ThemeSelectorProps {
 
 export const ThemeSelector = ({ value, onChange }: ThemeSelectorProps) => {
   const { theme, setTheme } = useTheme();
+  
+  // Синхронизируем внутреннее состояние с внешним
+  useEffect(() => {
+    if (value !== theme) {
+      onChange(theme);
+    }
+  }, [theme]);
 
   const handleThemeChange = (newTheme: ThemeType) => {
     setTheme(newTheme);

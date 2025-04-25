@@ -132,7 +132,7 @@ export const updateSettings = appActions.updateSettings;
 export function setAppState(newState: Partial<AppData>) {
   try {
     appState = { ...appState, ...newState };
-    notifyState();
+    notifyState(); // Уведомляем всех подписчиков об изменении состояния
   } catch (e) {
     logError('Ошибка при обновлении состояния приложения', e);
   }
