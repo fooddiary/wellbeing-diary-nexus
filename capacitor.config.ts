@@ -2,7 +2,7 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'app.lovable.7b11e69137264f65b1d0b27795193d39',
+  appId: 'com.lovable.diary',
   appName: 'wellbeing-diary-nexus',
   webDir: 'dist',
   server: {
